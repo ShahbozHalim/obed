@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Food Calculate</title>
+</head>
+<style>
+    *,
+    *::before,
+    *::after {
+        font-family: 'Courier New', Courier, monospace;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+    }
+
+    input[type='number'],
+    input[type="number"]:hover,
+    input[type="number"]:focus {
+        appearance: none;
+        -moz-appearance: textfield;
+    }
+
+    body>p {
+        position: absolute;
+        color: #aaa;
+        top: 20px;
+        right: 30px;
+    }
+
+    #root {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: auto;
+        height: 100%;
+        margin: 0 auto;
+        padding: 30px 100px 150px 100px;
+    }
+
+    #root form {
+        margin: 15px 0;
+    }
+
+    #root label {
+        display: block;
+        color: #555;
+        font-weight: 600;
+        padding-bottom: 3px;
+    }
+
+    #root [type="text"],
+    #root [type="number"] {
+        font-size: 16px;
+        padding: 5px 0px 5px 10px;
+        outline: none;
+        border-radius: 5px;
+        border: 1px solid #555;
+        background-color: #eee;
+    }
+
+    #root input::placeholder {
+        color: #aaa;
+    }
+
+    #root [type="text"]:focus,
+    #root [type="number"]:focus {
+        background-color: #fff
+    }
+
+    #root [type="submit"] {
+        font-size: 16px;
+        color: #aaa;
+        padding: 5px 10px;
+        outline: none;
+        border-radius: 5px;
+    }
+
+    #root [type="submit"] {
+        color: #aaa;
+        border: 1px solid #aaa;
+        border: 1px solid rgb(141, 141, 141);
+        padding: 5px 10px;
+    }
+
+    #root [type="submit"]:focus,
+    #root input:focus {
+        border: 1px solid green;
+    }
+
+    #root .btn_hover {
+        background-color: #eee;
+        color: green;
+        font-weight: 600;
+        box-shadow: 0px 8px 5px -5px rgba(19, 95, 0, 0.5);
+    }
+
+    #root .btn_hover:active {
+        background-color: #eee;
+        box-shadow: none;
+    }
+
+    .addname,
+    .addfood,
+    .addpercent {
+        position: relative;
+    }
+
+    .addname>span,
+    .addfood>span,
+    .addpercent>span {
+        /* display: none; */
+        position: absolute;
+        top: 53px;
+        color: red;
+        font-size: 12px;
+    }
+
+    .addname [name="name"] {
+        width: 300px;
+    }
+
+    .addfood [name="food"] {
+        width: 220px;
+    }
+
+    .addfood [name="price"] {
+        width: 70px;
+    }
+
+    .addpercent [name="percent"],
+    .addpercent [name="delivery"] {
+        width: 145px;
+    }
+
+    .list {
+        display: block;
+        margin-top: 20px;
+        cursor: default;
+    }
+
+    .list__food {
+        max-width: 800px;
+    }
+
+    .list>ul,
+    .list__food>ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        align-items: stretch;
+    }
+
+    .list__food>ul {
+        justify-content: center;
+    }
+
+    .list>ul>li {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        /* justify-content: space-between; */
+        min-width: 152px;
+        /* min-height: 150px; */
+        /* height: 100%; */
+        padding: 10px;
+        margin: 0px 5px 20px 5px;
+        list-style: none;
+        background-color: #eee;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .list__food>ul>li {
+        cursor: default;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background-color: #eee;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin: 20px 5px 0px 5px;
+        min-height: 10px;
+        padding: 2px 10px;
+        color: #aaa
+    }
+
+    .list__name__hover,
+    .list__allfoods__hover {
+        display: flex;
+        width: 130px;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        margin: auto;
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.7);
+        border: 1px solid #ccc;
+    }
+
+    .list__name__delete {
+        font-size: 16px;
+        font-weight: 600;
+        position: absolute;
+        color: #aaa;
+        padding: 3px 6px;
+        top: 5px;
+        right: 5px;
+    }
+
+    .list__name__delete:hover {
+        color: rgba(214, 0, 0, 1);
+    }
+
+    .list__name__cash,
+    .list__name__cash>div,
+    .list__allfoods__cash,
+    .list__allfoods__cash>div {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .list__name__cash,
+    .list__allfoods__cash {
+        /* border-top: 1px solid #ccc; */
+        padding-top: 5px;
+        margin-top: 10px;
+    }
+
+    .list__name__cash {
+        height: 100%;
+    }
+
+    .list__name__cash span,
+    .list__allfoods__cash span {
+        padding: 0 5px;
+    }
+
+    .list__name>li>div>h3,
+    .list__allfoods>li>div>h3 {
+        margin: 5px 0px 10px 5px;
+    }
+
+    .list__name__food>li,
+    .list__allfoods__food>li {
+        display: flex;
+        justify-content: space-between;
+        align-content: center;
+        align-items: center;
+        border-radius: 3px;
+        background-color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 5px;
+        padding: 3px 5px;
+    }
+
+    .list__name__food>li>div,
+    .list__allfoods__food>li>div {
+        display: flex;
+        justify-content: flex-end;
+        width: 100px;
+    }
+
+    .list__name__food>li>div>button,
+    .list__allfoods__food>li>div>button {
+        padding: 0 3px;
+        margin: 0 5px;
+    }
+
+    .show__count>span {
+        color: #aaa;
+        font-size: 12px;
+        text-align: right;
+        padding: 0 3px;
+    }
+
+    .show__count span>b {
+        color: #000;
+        font-size: 16px;
+    }
+
+    .list__allfoods>li {
+        display: flex;
+        width: 100%;
+        border: 1px solid blue;
+    }
+
+    .list__allfoods__food {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .list__allfoods__food>li {
+        margin: 5px 5px;
+        border: 1px solid green;
+    }
+
+    .hide {
+        display: none;
+    }
+</style>
+
+<body>
+    <p>version: 0.7.2</p>
+    <div id="root">
+        <form class="addname" action="">
+            <div>
+                <label for="addname">Введите участника:</label>
+                <div>
+                    <input type="text" placeholder="Введите имя" name="name" autocomplete="off">
+                    <input type="submit" value="Добавить" disabled>
+                </div>
+            </div>
+            <span class="hide">Введено неверное значение!</span>
+        </form>
+        <form class="addfood" action="">
+            <div>
+                <label for="addname">Введите название блюда и цену:</label>
+                <div>
+                    <input type="text" placeholder="Название блюда" name="food" autocomplete="off">
+                    <input type="number" placeholder="Цена" name="price" autocomplete="off" step="any">
+                    <input type="submit" value="Добавить" disabled>
+                </div>
+            </div>
+            <span class="hide">Введено неверное значение!</span>
+        </form>
+        <form class="addpercent" action="">
+            <div>
+                <label for="addname">Введите процент или стоимость доставки:</label>
+                <div>
+                    <input type="number" placeholder="Процент" name="percent" autocomplete="off" step="any">
+                    <input type="number" placeholder="Доставка" name="delivery" autocomplete="off" step="any">
+                    <input class="btn_active" type="submit" value="Добавить" disabled>
+                </div>
+            </div>
+            <span class="hide">Введено неверное значение!</span>
+        </form>
+        <div class="list__food">
+        </div>
+        <div class="list">
+            <ul class="list__name">
+            </ul>
+            <ul class="list__allfoods">
+            </ul>
+        </div>
+    </div>
+    <script>
+        const root = document.querySelector('#root'),
+            nameForm = root.querySelector('.addname'),
+            nameFormInput = nameForm.querySelector('[type="text"]'),
+            nameFormBtn = nameForm.querySelector('[type="submit"]'),
+            nameFormMessage = nameForm.querySelector('div span'),
+            foodForm = root.querySelector('.addfood'),
+            foodFormNameInput = foodForm.querySelector('[type="text"]'),
+            foodFormPriceInput = foodForm.querySelector('[type="number"]'),
+            foodFormBtn = foodForm.querySelector('[type="submit"]'),
+            foodFormMessage = foodForm.querySelector('div span'),
+            percentForm = root.querySelector('.addpercent'),
+            percentFormPercentInput = percentForm.querySelector('[name="percent"]'),
+            percentFormDeliveryInput = percentForm.querySelector('[name="delivery"]'),
+            percentFormBtn = percentForm.querySelector('[type="submit"]'),
+            percentFormMessage = percentForm.querySelector('div span'),
+            listFood = root.querySelector('.list__food'),
+            listName = root.querySelector('.list__name'),
+            listAllfoods = root.querySelector('.list__allfoods')
+
+        listName.addEventListener('click', nameFoodCounter)
+        listAllfoods.addEventListener('click', allFoodsCounter)
+
+
+        function nameFoodCounter(event) {
+            const parent = event.target.parentNode.parentNode.parentNode.parentNode,
+                food = event.target.parentNode.parentNode
+            if (event.target.classList.contains('up')) {
+                users = users.map((elem) => {
+                    if (elem.id === +parent.dataset.nameId) {
+                        elem.food = elem.food.map(item => {
+                            if (item.id === +food.dataset.nameFoodId) {
+                                item.count += 1
+                                return item
+                            } else {
+                                return item
+                            }
+                        })
+                        return elem
+                    } else {
+                        return elem
+                    }
+                })
+                render.usersList(users)
+            } else if (event.target.classList.contains('down')) {
+                users = users.map((elem) => {
+                    if (elem.id === +parent.dataset.nameId) {
+                        elem.food = elem.food.map(item => {
+                            if (item.id === +food.dataset.nameFoodId) {
+                                if (+item.count === 0) {
+                                    return item
+                                } else {
+                                    item.count -= 1
+                                    return item
+                                }
+                            } else {
+                                return item
+                            }
+                        })
+                        return elem
+                    } else {
+                        return elem
+                    }
+                })
+                render.usersList(users)
+            }
+            allCashCalculate()
+        }
+        function allFoodsCounter(event) {
+            const food = event.target.parentNode.parentNode
+            if (event.target.classList.contains('up')) {
+                foods.map((elem) => {
+                    if (elem.id === +food.dataset.allfoodsFood) {
+                        if (elem.id === +food.dataset.allfoodsFood) {
+                            elem.count += 1
+                            return elem
+                        } else {
+                            return elem
+                        }
+                    } else {
+                        return elem
+                    }
+                })
+                render.foodsList(foods)
+                render.usersList(users)
+            } else if (event.target.classList.contains('down')) {
+                foods.map((elem) => {
+                    if (elem.id === +food.dataset.allfoodsFood) {
+                        if (elem.id === +food.dataset.allfoodsFood) {
+                            elem.count -= 1
+                            return elem
+                        } else {
+                            return elem
+                        }
+                    } else {
+                        return elem
+                    }
+                })
+                render.foodsList(foods)
+                render.usersList(users)
+            }
+            allCashCalculate()
+            render.usersList(users)
+        }
+
+        const render = {
+            usersList: (array) => {
+                listName.innerHTML = ''
+                array.forEach((item) => {
+                    const liname = document.createElement('li')
+                    liname.dataset.nameId = item.id
+                    liname.innerHTML = `
+                    <div>
+                        <h3>${item.name}</h3>
+                        <!--<div class="list__name__delete">X</div>-->
+                        <!--<div class="list__name__hover">Наведите чтобы добавить блюдо</div>-->
+                    </div>
+                `
+                    render.userFoods(array, item.id, liname)
+                    render.userPayment(array, item.id, liname)
+                    render.userSumPayment(item.food, item.id, liname)
+                    listName.append(liname)
+                })
+            },
+            userFoods: (array, id, element) => {
+                const ul = document.createElement('ul')
+                if (array[id].food.length !== 0) {
+                    array[id].food.forEach((item) => {
+                        let btnDisabled = 'disabled'
+
+                        if (item.count > 0) {
+                            btnDisabled = ''
+                        }
+                        ul.classList.add('list__name__food')
+                        ul.innerHTML += `
+                    <li data-name-food-id=${item.id}>
+                        <p>${item.name}</p>
+                        <div>
+                            <button class="down" ${btnDisabled}>-</button>
+                            <span>${item.count}</span>
+                            <button class="up">+</button>
+                        </div>
+                    </li>
+                `
+                    })
+                }
+                if (delivery !== undefined && delivery !== 0) {
+                    const li = document.createElement('li'),
+                        del = delivery / users.length
+
+                    li.innerHTML = `
+                <p>Доставка ${del.toFixed(2)} сом</p>
+            `
+                    ul.append(li)
+                }
+                if (foodscash !== undefined && foodscash !== 0) {
+                    const li = document.createElement('li'),
+                        allfoodscash = foodscash / users.length
+
+                    li.innerHTML = `
+                <p>Общие блюда ${allfoodscash.toFixed(2)} сом</p>
+            `
+                    ul.append(li)
+                }
+                if (percent !== undefined && percent !== 0) {
+                    const li = document.createElement('li')
+                    let per = array[id].food.map((item) => {
+                        if (+item.count === 0) {
+                            return 0
+                        } else {
+                            return +item.price * item.count
+                        }
+                    }).reduce((total, amount) => total + amount)
+                    per = per / 100 * percent
+
+                    li.innerHTML = `
+                <p>Процент ${per.toFixed(2)} сом</p>
+            `
+                    ul.append(li)
+                }
+                element.append(ul)
+            },
+            userPayment: (array, id, element) => {
+                const div = document.createElement('div')
+                div.classList.add('list__name__cash')
+
+                div.innerHTML = `
+            <p>Сумма: </p>
+            <div>
+            <h3>0</h3>
+            <span>сом</span>
+            </div>
+        `
+                element.append(div)
+            },
+            userSumPayment: (array, id, element) => {
+                if (array.length !== 0) {
+                    let totalCash = array.map((item) => {
+                        if (+item.count === 0) {
+                            return 0
+                        } else {
+                            return +item.price * item.count
+                        }
+                    }).reduce((total, amount) => total + amount)
+
+                    if (percent !== undefined && percent !== 0) {
+                        totalCash = totalCash + (totalCash * (percent / 100))
+                        element.querySelector('.list__name__cash h3').textContent = totalCash.toFixed(2)
+                    }
+                    if (delivery !== undefined && delivery !== 0) {
+                        totalCash = totalCash + (delivery / users.length)
+                        element.querySelector('.list__name__cash h3').textContent = totalCash.toFixed(2)
+                    }
+                    if (foodscash !== undefined && foodscash !== 0) {
+                        totalCash = totalCash + (foodscash / users.length)
+                        element.querySelector('.list__name__cash h3').textContent = totalCash.toFixed(2)
+                    } else {
+                        element.querySelector('.list__name__cash h3').textContent = totalCash.toFixed(2)
+                    }
+                }
+
+            },
+            foodsList: (array) => {
+                if (array.length !== 0) {
+                    listAllfoods.innerHTML = ''
+                    const lifood = document.createElement('li'),
+                        divfood = document.createElement('div'),
+                        divcash = document.createElement('div')
+                    divcash.classList.add('list__allfoods__cash')
+                    divfood.innerHTML = `
+                    <h3>Список общих блюд</h3>
+                    <!--<div class="list__allfoods__hover hide">Наведите чтобы добавить блюдо</div>-->
+                `
+                    if (allcash !== undefined && percent !== undefined && percent !== 0) {
+                        divcash.innerHTML = `
+                    <p>Итоговая сумма с ${percent}%: </p>
+                    <div>
+                        <h3>${allcash}</h3>
+                        <span>сом</span>
+                    </div>
+                `
+                    } else if (allcash !== undefined && delivery !== undefined && delivery !== 0) {
+                        divcash.innerHTML = `
+                    <p>Итоговая сумма с доставкой: </p>
+                    <div>
+                        <h3>${allcash}</h3>
+                        <span>сом</span>
+                    </div>
+                `
+                    } else if (allcash === undefined) {
+                        divcash.innerHTML = `
+                    <p>Итоговая сумма: </p>
+                    <div>
+                        <h3></h3>
+                        <span>сом</span>
+                    </div>
+                `
+                    } else {
+                        divcash.innerHTML = `
+                    <p>Итоговая сумма: </p>
+                    <div>
+                        <h3>${allcash}</h3>
+                        <span>сом</span>
+                    </div>
+                `
+                    }
+
+
+                    render.foodsListFood(array, divfood)
+                    lifood.append(divfood)
+                    lifood.append(divcash)
+                    listAllfoods.append(lifood)
+                }
+            },
+            foodsListFood: (array, element) => {
+                const ul = document.createElement('ul')
+                ul.classList.add('list__allfoods__food')
+                array.forEach((item) => {
+                    let btnDisabled = 'disabled'
+
+                    if (item.count > 0) {
+                        btnDisabled = ''
+                    }
+                    ul.innerHTML += `
+                <li data-allfoods-food="${item.id}">
+                    <p>${item.name}</p>
+                    <div>
+                        <button class="down" ${btnDisabled}>-</button>
+                        <span>${item.count}</span>
+                        <button class="up">+</button>
+                    </div>
+                </li>
+            `
+                })
+                element.append(ul)
+            }
+
+        }
+
+        let users = [
+        ],
+            foods = [
+            ]
+
+        let userCounter = 0,
+            foodCounter = 0,
+            timer,
+            percent,
+            delivery,
+            allcash,
+            foodscash
+
+        render.usersList(users)
+
+        function focusOnElement(element) {
+            element.addEventListener('focusin', (event) => {
+                const target = event.target
+                if (target.name === 'name') {
+                    target.oninput = () => {
+                        if (target.value.trim().length >= 4) {
+                            nameFormMessage.classList.add('hide')
+                            nameFormBtn.disabled = false
+                            nameFormBtn.classList.add('btn_hover')
+                        } else {
+                            nameFormBtn.disabled = true
+                            nameFormBtn.classList.remove('btn_hover')
+                            nameFormMessage.classList.remove('hide')
+                            nameFormMessage.textContent = 'Минимум 4 символа'
+                        }
+                    }
+                }
+                if (target.name === 'food') {
+                    target.oninput = () => {
+                        if (target.value.trim().length >= 3 && foodFormPriceInput.value != '' && Number(foodFormPriceInput.value) > 0) {
+                            foodFormBtn.disabled = false
+                            foodFormBtn.classList.add('btn_hover')
+                            foodFormMessage.classList.add('hide')
+                        } else if (target.value.trim().length >= 3) {
+                            foodFormMessage.classList.add('hide')
+                        } else if (target.value.trim().length < 3) {
+                            foodFormBtn.disabled = true
+                            foodFormBtn.classList.remove('btn_hover')
+                            foodFormMessage.classList.remove('hide')
+                            foodFormMessage.textContent = 'Минимум 3 символа!'
+                        }
+                    }
+                }
+                if (target.name === 'price') {
+                    target.oninput = () => {
+                        if (target.value.trim().length > 0 && foodFormNameInput.value.trim().length >= 3 && Number(target.value) > 0) {
+                            foodFormBtn.disabled = false
+                            foodFormBtn.classList.add('btn_hover')
+                            foodFormMessage.classList.add('hide')
+                        } else if ((target.value > 0 && foodFormNameInput.value.trim().length < 3) || (target.value > 0 && foodFormNameInput.value == '')) {
+                            foodFormBtn.classList.remove('btn_hover')
+                            foodFormMessage.classList.remove('hide')
+                            foodFormMessage.textContent = 'Введите название блюда!'
+
+                        } else if (Number(target.value) < 0) {
+                            foodFormBtn.disabled = true
+                            foodFormBtn.classList.remove('btn_hover')
+                            foodFormMessage.classList.remove('hide')
+                            foodFormMessage.textContent = 'Цена не может быть отрицательной!'
+                        } else if (target.value === '') {
+                            foodFormBtn.disabled = true
+                            foodFormBtn.classList.remove('btn_hover')
+                            foodFormMessage.classList.add('hide')
+                            foodFormMessage.textContent = 'Недопустимое значение'
+                        } else if (Number(target.value) === 0) {
+                            foodFormBtn.disabled = true
+                            foodFormBtn.classList.remove('btn_hover')
+                            foodFormMessage.classList.remove('hide')
+                            foodFormMessage.textContent = 'Цена не может быть 0 сомони!'
+                        }
+                    }
+                }
+                if (target.name === 'percent') {
+                    target.oninput = () => {
+                        if (Number(target.value) <= 0) {
+                            percentFormBtn.classList.remove('btn_hover')
+                            percentFormBtn.disabled = true
+                            percentFormDeliveryInput.disabled = false
+                            percentFormMessage.classList.remove('hide')
+                            percentFormMessage.textContent = 'Недопустимое значение!'
+                        } else if (Number(target.value) > 100) {
+                            percentFormBtn.classList.remove('btn_hover')
+                            percentFormBtn.disabled = true
+                            percentFormDeliveryInput.disabled = false
+                            percentFormMessage.classList.remove('hide')
+                            percentFormMessage.textContent = 'Слишком большой процент'
+                        } else if (Number(target.value) < 100 && Number(target.value) > 0) {
+                            percentFormBtn.classList.add('btn_hover')
+                            percentFormBtn.disabled = false
+                            percentFormDeliveryInput.disabled = true
+                            percentFormMessage.classList.add('hide')
+                        } else if (target.value === '') {
+                            percentFormBtn.classList.remove('btn_hover')
+                            percentFormBtn.disabled = true
+                            percentFormDeliveryInput.disabled = false
+                            percentFormMessage.classList.add('hide')
+                        }
+                    }
+                }
+                if (target.name === 'delivery') {
+                    target.oninput = () => {
+                        if (Number(target.value) <= 0) {
+                            percentFormBtn.classList.remove('btn_hover')
+                            percentFormBtn.disabled = true
+                            percentFormPercentInput.disabled = false
+                            percentFormMessage.classList.remove('hide')
+                            percentFormMessage.textContent = 'Недопустимое значение!'
+                        } else if (Number(target.value) > 0) {
+                            percentFormBtn.classList.add('btn_hover')
+                            percentFormBtn.disabled = false
+                            percentFormPercentInput.disabled = true
+                            percentFormMessage.classList.add('hide')
+                        } else if (Number(target.value) < 100) {
+                            percentFormMessage.classList.add('hide')
+                        } else if (target.value === '') {
+                            percentFormBtn.classList.remove('btn_hover')
+                            percentFormBtn.disabled = true
+                            percentFormPercentInput.disabled = false
+                            percentFormMessage.classList.add('hide')
+                        }
+                    }
+                }
+            })
+            element.addEventListener('focusout', (event) => {
+                const target = event.target
+                if (target.name === 'name' && nameFormInput.value === '') {
+                    nameFormMessage.classList.add('hide')
+                }
+                if ((target.name === 'food' || target.name === 'price') && (foodFormNameInput.value == '' && foodFormPriceInput.value == '')) {
+                    foodFormPriceInput.value = ''
+                    foodFormMessage.classList.add('hide')
+                } else if ((target.name === 'food' || target.name === 'price') && (foodFormNameInput.value.trim().length >= 3 && Number(foodFormPriceInput.value) === 0)) {
+                    foodFormPriceInput.value = ''
+                    foodFormBtn.classList.remove('btn_hover')
+                    foodFormMessage.classList.remove('hide')
+                    foodFormMessage.textContent = 'Введите цену!'
+                } else if ((target.name === 'food' || target.name === 'price') && (foodFormNameInput.value.trim().length < 3 && foodFormPriceInput.value === '') || (target.name === 'food' || target.name === 'price') && (foodFormNameInput.value.trim().length < 3 && Number(foodFormPriceInput.value) === 0)) {
+                    foodFormPriceInput.value = ''
+                    foodFormBtn.classList.remove('btn_hover')
+                    foodFormMessage.classList.remove('hide')
+                    foodFormMessage.textContent = 'Введите название блюда!'
+                } else if (target.name === 'price' && foodFormPriceInput.value === '') {
+                    foodFormPriceInput.value = ''
+                    foodFormMessage.classList.add('hide')
+                } else if (target.name === 'price' && Number(foodFormPriceInput.value) === 0) {
+                    foodFormPriceInput.value = ''
+                    foodFormMessage.classList.add('hide')
+                } else if (target.name === 'percent' && percentFormPercentInput.value === '') {
+                    percentFormPercentInput.value = ''
+                    percentFormMessage.classList.add('hide')
+                } else if ((target.name === 'percent' && Number(percentFormPercentInput.value) <= 0) || (target.name === 'percent' && Number(percentFormPercentInput.value) > 100)) {
+                    percentFormMessage.classList.add('hide')
+                    percentFormPercentInput.value = ''
+
+                } else if (target.name === 'delivery' && percentFormDeliveryInput.value === '') {
+                    percentFormDeliveryInput.value = ''
+                    percentFormMessage.classList.add('hide')
+                } else if (target.name === 'delivery' && Number(percentFormDeliveryInput.value) <= 0) {
+                    percentFormDeliveryInput.value = ''
+                    percentFormMessage.classList.add('hide')
+                }
+            })
+        }
+
+        function onSubmit(element) {
+            element.addEventListener('submit', (event) => {
+                event.preventDefault()
+                const target = event.target
+                if (target.classList.contains('addname')) {
+                    const user = {
+                        id: userCounter,
+                        name: nameFormInput.value
+                    }
+                    users.push(user)
+                    userCounter++
+                    nameFormInput.value = ''
+                    nameFormBtn.classList.remove('btn_hover')
+                    nameFormBtn.disabled = true
+                    showMessage(nameFormMessage, 'Участник добавлен!')
+                    hideMessage(nameFormMessage)
+                    addFoodAtUser()
+                    render.usersList(users)
+                } else if (target.classList.contains('addfood')) {
+                    const food = {
+                        id: foodCounter,
+                        name: foodFormNameInput.value,
+                        price: foodFormPriceInput.value,
+                        count: 0
+                    }
+                    foods.push(food)
+                    foodCounter++
+                    foodFormNameInput.value = ''
+                    foodFormPriceInput.value = ''
+                    foodFormBtn.classList.remove('btn_hover')
+                    foodFormBtn.disabled = true
+                    render.foodsList(foods)
+                    addFoodAtUser()
+                    render.usersList(users)
+                    renderListFood()
+                } else if (target.classList.contains('addpercent')) {
+                    console.log(event.target)
+                    if (percentFormPercentInput !== '') {
+                        percent = +percentFormPercentInput.value
+                        percentFormBtn.disabled = true
+                        percentFormBtn.classList.remove('btn_hover')
+                        render.usersList(users)
+                        render.foodsList(foods)
+                        allCashCalculate()
+                    }
+                    if (percentFormDeliveryInput !== '') {
+                        delivery = +percentFormDeliveryInput.value
+                        percentFormBtn.disabled = true
+                        percentFormBtn.classList.remove('btn_hover')
+                        render.usersList(users)
+                        render.foodsList(foods)
+                        allCashCalculate()
+                    }
+                }
+            })
+        }
+        onSubmit(root)
+
+        focusOnElement(root)
+
+        function showMessage(element, message) {
+            element.classList.remove('hide')
+            element.textContent = message
+            element.style.color = 'green'
+            hideMessage(element)
+        }
+
+        function hideMessage(element) {
+            timer = setTimeout(() => {
+                element.classList.add('hide')
+                element.style.color = 'red'
+            }, 500)
+        }
+
+        function searchFood(i) {
+            const food = foods.find(item => {
+                if (item.id === i) {
+                    return item.name
+                }
+            })
+        }
+        searchFood(1)
+
+        function addFoodAtUser() {
+            if (users.length > 0) {
+                users.forEach((user) => {
+                    arr = foods.map((food) => {
+                        return {
+                            id: food.id,
+                            name: food.name,
+                            count: 0,
+                            price: food.price
+                        }
+                    })
+                    user.food = arr
+                })
+            }
+        }
+
+        function renderListFood() {
+            listFood.innerHTML = ''
+            const ul = document.createElement('ul')
+            foods.forEach(item => {
+                ul.innerHTML += `
+            <li id="${item.id}" style="font-size:12px; color: #888">${item.name} - ${item.price} сом</li>
+        `
+            })
+            listFood.append(ul)
+        }
+        renderListFood()
+        render.foodsList(foods)
+
+        function allCashCalculate() {
+            if (users.length !== 0 && foods.length !== 0) {
+
+                let usercash = users.map((item) => {
+                    let cash = item.food.map(elem => {
+                        if (+elem.count === 0) {
+                            return 0
+                        } else {
+                            return +elem.count * +elem.price
+                        }
+                    }).reduce((total, amount) => total + amount)
+                    if (percent !== undefined && percent !== 0) {
+                        cash = cash + (cash * (percent / 100))
+                    } else if (delivery !== undefined && delivery !== 0) {
+                        cash = cash + (delivery / users.length)
+                    }
+                    return cash
+                }).reduce((total, amount) => total + amount)
+
+                if (usercash === undefined) {
+                    allcash = 0
+                } else {
+                    allcash = usercash.toFixed(2)
+                }
+
+                let foodcash = foods.map(elem => {
+                    if (+elem.count === 0) {
+                        return 0
+                    } else {
+                        return +elem.count * +elem.price
+                    }
+                }).reduce((total, amount) => total + amount)
+
+                if (percent !== undefined && percent !== 0) {
+                    foodcash = foodcash + (foodcash * (percent / 100))
+                }
+
+                foodscash = foodcash.toFixed(2)
+
+                if (usercash === undefined) {
+                    allcash = 0
+                    console.log(allcash)
+                } else if (usercash !== undefined && foodcash === undefined) {
+                    allcash = usercash.toFixed(2)
+                } else {
+                    allcash = +usercash.toFixed(2) + +foodcash.toFixed(2)
+                }
+            }
+            render.foodsList(foods)
+        }
+    </script>
+</body>
+
+</html>
